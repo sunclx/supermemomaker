@@ -1,6 +1,6 @@
 class Block
-  def initialize(text=nil)
-    @string = text
+  def initialize
+    @string = nil
   end
 
   def to_s
