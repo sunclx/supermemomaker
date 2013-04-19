@@ -68,3 +68,4 @@ EOF
     @exercises<<item.exercise
   end
 end
+
