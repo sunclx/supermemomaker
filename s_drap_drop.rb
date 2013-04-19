@@ -1,10 +1,11 @@
 require './course.rb'
 class SDrapDrop < Block
-  def initialize
+  def initialize(attributes={})
     @attributes = {
         orientation: nil,
         dropsign: '10'
     }
+    @attributes.merge! attributes
     @question = Element.new('drop-text')
     @opt = Element.new('option')
     @options = []
@@ -12,10 +13,11 @@ class SDrapDrop < Block
 
   def to_s
     @string = Element.new('drap-drop')
+    @attributes.each_pair { |k, v| @string.add_attribute(k.to_s, v) }
     @string << @question
     @options.each { |option| @string << option }
     @string=@string.to_s
-    #super
+    super
   end
 
   def sentence_with_n(sentence, n=3)
@@ -42,6 +44,7 @@ class SDrapDrop < Block
     self.sentence_with_n(sentence, n)
   end
 end
+#使用实例
+#s = SDrapDrop.new({dropsign:'5',h:'dh'}).sentence_with_n('I am a student lots of years ago.')
+#print s
 
-s = SDrapDrop.new.sentence_with_percent('I am a student, ha ha.', 1)
-print s
