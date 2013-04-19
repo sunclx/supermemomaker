@@ -3,7 +3,7 @@ require 'securerandom'
 include REXML
 require './item.rb'
 require './qa.rb'
-require './stext.rb'
+require './s_text.rb'
 
 class Course
   attr_reader :course

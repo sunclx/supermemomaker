@@ -1,5 +1,5 @@
 require './block.rb'
-class SMtext < Block
+class SText < Block
   def initialize(text)
     @string = text
   end

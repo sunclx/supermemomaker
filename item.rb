@@ -45,7 +45,7 @@ EOF
   end
 
   def to_s
-    @doc.to_s
+    @doc.to_s.gsub!('&l;', '<').gsub!('&gt;', '>')
   end
 
   def qa
