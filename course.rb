@@ -2,9 +2,29 @@ require 'rexml/document'
 require 'securerandom'
 include REXML
 require './item.rb'
-require './qa.rb'
 require './s_text.rb'
+require './s_drap_drop.rb'
 
+class Attribute
+  def initialize(first, second=nil, parent=nil)
+    @normalized = @unnormalized = @element = nil
+    if first.kind_of? Attribute
+      self.name = first.expanded_name
+      @unnormalized = first.value
+      if second.kind_of? Element
+        @element = second
+      else
+        @element = first.element
+      end
+    elsif first.kind_of? String or first.kind_of? Symbol
+      @element = parent
+      self.name = first
+      @normalized = second.to_s
+    else
+      raise "illegal argument #{first.class.name} to Attribute constructor"
+    end
+  end
+end
 class Course
   def initialize(file=nil)
     @file = 'course.xml'
@@ -31,7 +51,6 @@ class Course
     @pres = []
     @exercises = []
     @items =[]
-    self.write_to_file
   end
 
   def to_s
@@ -40,23 +59,28 @@ class Course
 EOF
     @doc = Document.new(string)
     @attributes.each_pair { |k, v| @doc.root.add_element(k.to_s).text= v.to_s }
-    @exercises.each { |exercise| @doc.root.add_element(exercise) }
+    self.pres.each { |exercise| @doc.root.add_element(exercise) }
     @doc
   end
 
+  def pres
+    @pres # @exercises.map { |exercise| exercise.parent||exercise }.uniq.compact
+  end
+
   def exercise_gen(name='blank')
-    id = ((1..99999).to_a - self.ids.sort!)[0]
     @exercises << exercise =@ex.clone
-    exercise.add_attributes(id: id, name: name)
+    exercise.add_attributes(id: id_gen, name: name)
+    exercise
+  end
+
+  def pre_gen(name='blank')
+    @pres << exercise =@pre.clone
+    exercise.add_attributes(id: id_gen, name: name)
     exercise
   end
 
   def write_to_file
     File.open(@file, 'w') { |f| f.write(self.to_s) }
-  end
-
-  def ids
-    return @exercises.map { |exercise| exercise.attributes['id'].to_i }
   end
 
   def [](index)
@@ -66,6 +90,11 @@ EOF
   def <<(item)
     @items<< item
     @exercises<<item.exercise
+  end
+
+  private
+  def id_gen
+    ((1..99999).to_a- (@exercises+@pres).map { |exercise| exercise.attributes['id'].to_i }.sort!)[0]
   end
 end
 

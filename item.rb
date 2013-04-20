@@ -1,13 +1,11 @@
 require './course.rb'
 class Item
-  attr_reader :item
+  attr_accessor :q, :a
 
   def initialize(course, attributes={})
-
-    @name='blank0'
+    @name='blank'
     @exercise=course.exercise_gen(@name)
     @file = 'item'+'%05d'%self.id+'.xml'
-
     @attributes = {
         'lesson-title' => 'lesson_title',
         'chapter-title' => 'chapter_title',
@@ -18,16 +16,9 @@ class Item
         'template-id' => '1'
     }
     @attributes.merge! attributes
-    @q='ooj'
-    @a='jjjj'
+    @q=''
+    @a=''
     @pres = self
-    self.write_to_file
-  end
-
-  def self.build(course, attributes={})
-    item = self.new(course, attributes)
-    yield item if block_given?
-    item
   end
 
   def id
@@ -42,28 +33,34 @@ EOF
     @attributes.each_pair { |k, v|
       e=@doc.root.add_element(k.to_s)
       e.text = v.to_s }
-    #@doc.root.elements['question'].text = @q.to_s
-    #@doc.root.elements['answer'].text = @a.to_s
-    @doc.to_s #.gsub('&l;', '<').gsub('&gt;', '>')
+    @doc.root.elements['question'].text = @q.to_s
+    @doc.root.elements['answer'].text = @a.to_s
+    @doc.to_s.gsub('&lt;', '<').gsub('&gt;', '>')
   end
 
-=begin
-  def qa
-    QA.new(@item.elements['question'], @item.elements['answer'])
+  def add_to_question(block)
+    @question +=block.to_s
+    self
   end
 
-  def qa=(qa)
-    self << qa
+  def add_to_answer(block)
+    @answer += block.to_s
+    self
   end
 
-  def <<(qa)
-    @item.delete_element(@item.elements['//question'])
-    @item.delete_element(@item.elements['//answer'])
-    @item<<qa.element[0]
-    @item<<qa.element[1]
+  def set_qa(q=nil, a=nil)
+    @q=q || @q
+    @a=a || @a
+    self
   end
-=end
+
   def write_to_file
     File.open(@file, 'w') { |f| f.write(self.to_s) }
+  end
+end
+class Block
+  def to_s
+    @string ||= nil
+    @string.to_s
   end
 end

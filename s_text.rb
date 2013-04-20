@@ -1,4 +1,4 @@
-require './block.rb'
+require './item.rb'
 class SText < Block
   def initialize(text)
     @string = text

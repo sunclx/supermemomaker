@@ -11,17 +11,9 @@ class SDrapDrop < Block
     @options = []
   end
 
-  def to_s
-    @string = Element.new('drap-drop')
-    @attributes.each_pair { |k, v| @string.add_attribute(k.to_s, v) }
-    @string << @question
-    @options.each { |option| @string << option }
-    @string=@string.to_s
-    super
-  end
-
   def sentence_with_n(sentence, n=3)
     words = sentence.split(/\s/)
+    n = words.size if words.size < 3
     indexes = []
     loop {
       indexes << SecureRandom.random_number(words.size)
@@ -36,15 +28,22 @@ class SDrapDrop < Block
       words[v] = "[#{i}]"
     }
     @question.text= words.join(' ')
-    self
+    string_gen
+    self.freeze
   end
 
   def sentence_with_percent(sentence, percent = 0.2)
     n = (sentence.split(/\s/).size * percent).to_i
     self.sentence_with_n(sentence, n)
   end
+
+  private
+  def string_gen
+    @string = Element.new('drap-drop')
+    @attributes.each_pair { |k, v| @string.add_attribute(k.to_s, v) }
+    @string << @question
+    @options.each { |option| @string << option }
+  end
 end
-#使用实例
-#s = SDrapDrop.new({dropsign:'5',h:'dh'}).sentence_with_n('I am a student lots of years ago.')
-#print s
+
 
