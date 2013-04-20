@@ -1,6 +1,7 @@
 require './course.rb'
+
 class Item
-  attr_accessor :q, :a
+  attr_reader :question, :answer
 
   def initialize(course, attributes={})
     @name='blank'
@@ -16,8 +17,8 @@ class Item
         'template-id' => '1'
     }
     @attributes.merge! attributes
-    @q=''
-    @a=''
+    @question=nil.to_s
+    @answer=nil.to_s
     @pres = self
   end
 
@@ -33,8 +34,8 @@ EOF
     @attributes.each_pair { |k, v|
       e=@doc.root.add_element(k.to_s)
       e.text = v.to_s }
-    @doc.root.elements['question'].text = @q.to_s
-    @doc.root.elements['answer'].text = @a.to_s
+    @doc.root.elements['question'].text = @question.to_s
+    @doc.root.elements['answer'].text = @answer.to_s
     @doc.to_s.gsub('&lt;', '<').gsub('&gt;', '>')
   end
 
@@ -44,23 +45,17 @@ EOF
   end
 
   def add_to_answer(block)
-    @answer += block.to_s
+    @answer +=block.to_s
     self
   end
 
   def set_qa(q=nil, a=nil)
-    @q=q || @q
-    @a=a || @a
+    @question=q ? q.to_s : @question
+    @answer=a ? q.to_s : @answer
     self
   end
 
   def write_to_file
     File.open(@file, 'w') { |f| f.write(self.to_s) }
-  end
-end
-class Block
-  def to_s
-    @string ||= nil
-    @string.to_s
   end
 end

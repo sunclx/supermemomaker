@@ -2,8 +2,6 @@ require 'rexml/document'
 require 'securerandom'
 include REXML
 require './item.rb'
-require './s_text.rb'
-require './s_drap_drop.rb'
 
 class Attribute
   def initialize(first, second=nil, parent=nil)
@@ -59,12 +57,13 @@ class Course
 EOF
     @doc = Document.new(string)
     @attributes.each_pair { |k, v| @doc.root.add_element(k.to_s).text= v.to_s }
-    self.pres.each { |exercise| @doc.root.add_element(exercise) }
+    @exercises.map { |exercise| exercise.parent||exercise }.uniq.compact.
+        each { |e| @doc.root.add_element(e) }
     @doc
   end
 
   def pres
-    @pres # @exercises.map { |exercise| exercise.parent||exercise }.uniq.compact
+    @pres #
   end
 
   def exercise_gen(name='blank')

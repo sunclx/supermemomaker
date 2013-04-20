@@ -1,4 +1,14 @@
-require './course.rb'
+class Block
+  def to_s
+    @string ||= nil
+    @string.to_s
+  end
+end
+class SText < Block
+  def initialize(text)
+    @string = text
+  end
+end
 class SDrapDrop < Block
   def initialize(attributes={})
     @attributes = {
@@ -45,5 +55,3 @@ class SDrapDrop < Block
     @options.each { |option| @string << option }
   end
 end
-
-
