@@ -10,7 +10,8 @@ File.foreach('dates.txt') { |line|
 course.write_to_file
 =end
 block = SDrapDrop.new.sentence_with_n('I saw that a tiger sat under the tree.')
-print block
+puts block
+puts block
 puts Element.new(nil.to_s)
 
 

@@ -1,30 +1,40 @@
 require './course.rb'
 
-class Block
+class Block <Object
   def initialize(attributes={})
     @element =nil
     @attributes ||={}
     @attributes.merge! attributes
+    @opt = Element.new('option')
   end
 
   def to_s
     return @string.to_s if @string
     @string = Element.new(@element)
     @attributes.each_pair { |k, v| @string.add_attribute(k.to_s, v) }
-    self.sub_elements.each { |element| @string << element }
+    sub_elements.each { |element| @string << element }
     self.freeze
     @string.to_s
   end
 
+  private
   def sub_elements
 
   end
 
 end
 class SText < Block
-  def initialize(text)
+  def initialize(text='')
     @string = text
   end
+
+  def build_by_text(text)
+    @string =text
+    self.freeze
+    self
+  end
+
+  undef :sub_elements
 end
 class SDrapDrop < Block
   def initialize(attributes={})
@@ -35,13 +45,9 @@ class SDrapDrop < Block
     super
     @element= 'drap-drop'
     @question = Element.new('drop-text')
-    @opt = Element.new('option')
     @options = []
   end
 
-  def sub_elements
-    [@question,] + @options
-  end
 
   def sentence_with_n(sentence, n=3)
     words = sentence.split(/\s/)
@@ -67,13 +73,17 @@ class SDrapDrop < Block
     n = (sentence.split(/\s/).size * percent).to_i
     self.sentence_with_n(sentence, n)
   end
+
+  private
+  def sub_elements
+    [@question,] + @options
+  end
 end
 
 class SOrderList < Block
   def initialize
     @attributes = {orientation: 'horizontal'}
     @element = 'ordering-list'
-    @opt = Element.new('option')
     @options = []
   end
 
@@ -92,6 +102,11 @@ class SOrderList < Block
     options.each { |option| @options << a_option(option) }
     self
   end
+
+  private
+  def sub_elements
+    @options
+  end
 end
 
 class SRadio<Block
@@ -99,20 +114,20 @@ class SRadio<Block
     @attributes = {orientation: 'horizontal'}
     super
     @element= Element.new('radio')
-    @opt = Element.new('option')
     @options = []
   end
 
+  private
   def sub_elements
     @options
   end
 
 end
-class SDropList
+class SDropList <Block
   def initialize(attributes={})
     @attributes = {orientation: 'horizontal'}
-    @opt = Element.new('option')
-    @option =[]
+    @element =
+        @option =[]
   end
 end
 class SSpellPad
@@ -121,13 +136,50 @@ class SSpellPad
         correct: 'give',
         matchcase: 'true'
     }
-    @spellpad = Element.new('spellpad')
+    @element = Element.new('spellpad')
   end
+
+  def build_by_text(text)
+    @element.text = text
+    @string= @element.to_s
+    self.freeze
+    self
+  end
+
 end
 class STip
   def initialize
-    @element = Element.new('text')
+    @element = 'text'
     @sentence = Element.new('sentence')
-    @translation = Element.new('translation')
+    @tip = Element.new('translation')
+  end
+
+  def build_by_sentence_and_tip(sentence, tip)
+    @sentence.text = sentence
+    @tip.text = tip
+    self
+  end
+
+  private
+  def sub_elements
+    [@sentence, @tip]
+  end
+end
+class SSelectPhrases<Block
+  def initialize(attributes={})
+    @attributes ={mode: 'strikethrough'}
+    @element ='select-phrases'
+    @options=[]
+  end
+
+  def build_by_sentence(sentence)
+    def a_option(text)
+      option = @opt.clone
+      option.text = text
+      option
+    end
+
+    words = sentence.split(/\s/)
+    words.each { |word| @options<<a_option(word) }
   end
 end
